@@ -116,7 +116,7 @@ public Action NotifyAdmins(Handle timer, any userID)
 			}
 		}
 	}
-	if (VPNcount > 1)
+	if (VPNcount >= 1)
 			CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%i have been flagged for using a VPN, check console for more info", VPNcount);
 }
 
