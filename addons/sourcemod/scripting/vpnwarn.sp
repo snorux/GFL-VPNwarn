@@ -117,7 +117,7 @@ public Action NotifyAdmins(Handle timer, any userID)
 		}
 	}
 	if (VPNcount >= 1)
-			CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%i have been flagged for using a VPN, check console for more info", VPNcount);
+		CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%i have been flagged for using a VPN, check console for more info", VPNcount);
 }
 
 // --------------
@@ -244,27 +244,27 @@ stock void PrintToAdmins(int client, const char[] flags)
 	int userid = GetClientUserId(client);
 	
 	for (int i = 1; i <= MaxClients; i++) 
-    { 
-        if (IsValidClient(i) && IsValidAdmin(i, flags)) 
-        { 
-            CPrintToChat(i, "\x01[\x07GFL-VPN\x01] \x04%N \x05(%s) \x10has joined the server via a VPN!", client, steamID);
-            PrintToConsole(i, "[GFL-VPN] %N (%s) (#%i) has joined the server via a VPN!", client, steamID, userid);
-        } 
-    } 
+	{ 
+		if (IsValidClient(i) && IsValidAdmin(i, flags)) 
+		{ 
+			CPrintToChat(i, "\x01[\x07GFL-VPN\x01] \x04%N \x05(%s) \x10has joined the server via a VPN!", client, steamID);
+			PrintToConsole(i, "[GFL-VPN] %N (%s) (#%i) has joined the server via a VPN!", client, steamID, userid);
+		} 
+	} 
 }
 
 stock bool IsValidAdmin(int client, const char[] flags) 
 { 
-    int ibFlags = ReadFlagString(flags); 
-    if ((GetUserFlagBits(client) & ibFlags) == ibFlags) 
-    { 
-        return true; 
-    } 
-    if (GetUserFlagBits(client) & ADMFLAG_ROOT) 
-    { 
-        return true; 
-    } 
-    return false; 
+	int ibFlags = ReadFlagString(flags); 
+	if ((GetUserFlagBits(client) & ibFlags) == ibFlags) 
+	{ 
+		return true; 
+	} 
+	if (GetUserFlagBits(client) & ADMFLAG_ROOT) 
+	{ 
+		return true; 
+	} 
+	return false; 
 }   
 
 stock void VPNLog(const char[] message, any ...)
