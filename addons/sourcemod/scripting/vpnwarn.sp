@@ -1,7 +1,7 @@
 #define PLUGIN_NAME           "VPNwarn"
 #define PLUGIN_AUTHOR         "Snowy"
 #define PLUGIN_DESCRIPTION    "Uses GFL VPN API service to determine whether an IP is a VPN"
-#define PLUGIN_VERSION        "1.0"
+#define PLUGIN_VERSION        "1.1"
 #define PLUGIN_URL            ""
 
 #include <colors_csgo>
@@ -13,11 +13,11 @@
 
 #pragma newdecls required
 
-ConVar g_cvURL, g_cvEndPoint, g_cvToken, g_cvEnablePrint, g_cvObject;
+ConVar g_cvURL, g_cvEndPoint, g_cvToken, g_cvEnablePrint, g_cvObject, g_cvKick;
 
 char g_sURL[128], g_sEndPoint[128], g_sToken[128], g_sObject[128];
 bool g_bIsBlocked[MAXPLAYERS+1] = {false, ...};
-bool g_bEnablePrint;
+bool g_bEnablePrint, g_bKick;
 
 HTTPClient hHTTPClient;
 
@@ -32,10 +32,11 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	g_cvURL = 			CreateConVar("vpn_api_url", "google.com", "URL for the REST API.");
-	g_cvEndPoint = 		CreateConVar("vpn_endpoint_url", "something", "EndPoint for the API");
-	g_cvToken = 		CreateConVar("vpn_token", "", "Token to access the API");
-	g_cvObject = 		CreateConVar("vpn_object", "blocked", "The object in JSON to fetch the value");
+	g_cvURL =			CreateConVar("vpn_api_url", "google.com", "URL for the REST API.");
+	g_cvEndPoint =		CreateConVar("vpn_endpoint_url", "something", "EndPoint for the API");
+	g_cvToken =			CreateConVar("vpn_token", "", "Token to access the API");
+	g_cvObject =		CreateConVar("vpn_object", "blocked", "The object in JSON to fetch the value");
+	g_cvKick =			CreateConVar("vpn_kick", "0", "Whether or not to kick the VPN user when they join the server. 1 = kick, 0 = don't kick");
 
 	g_cvEnablePrint = 	CreateConVar("vpn_enable_print", "1", "Enable or disable printing messages");
 	
@@ -56,6 +57,7 @@ public void OnConfigsExecuted()
 	g_cvToken.AddChangeHook(OnConVarChange);
 	g_cvEnablePrint.AddChangeHook(OnConVarChange);
 	g_cvObject.AddChangeHook(OnConVarChange);
+	g_cvKick.AddChangeHook(OnConVarChange);
 }
 
 public void OnConVarChange(ConVar CVar, const char[] oldVal, const char[] newVal)
@@ -85,14 +87,14 @@ public void OnClientPostAdminCheck(int client)
 	if (g_bEnablePrint)
 	{
 		if (IsValidAdmin(client, "b"))
-			CreateTimer(45.0, NotifyAdmins, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(45.0, NotifyAdmin, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
 	// Initiate VPN check
 	VPN_Check(client);
 }
 
-public Action NotifyAdmins(Handle timer, any userID)
+public Action NotifyAdmin(Handle timer, any userID)
 {
 	int client = GetClientOfUserId(userID);
 	int VPNcount = 0;
@@ -173,6 +175,14 @@ public void OnHTTPResponse(HTTPResponse response, any data)
 	
 	if (g_bIsBlocked[client])
 	{
+		// Kick client if vpn_kick is set to "1"
+		if (g_bKick)
+		{
+			KickClient(client, "You have been kicked because you are using a VPN");
+			VPNLog("Name: %N, SteamID: %s, IP: %s tried to join the server with a VPN", client, steamID64, ip);
+			return;
+		}
+		
 		VPNLog("Name: %N, SteamID: %s, IP: %s joined the server with a VPN", client, steamID64, ip);
 		
 		// Print to admins that someone joined with a VPN
@@ -220,6 +230,7 @@ stock void GetValues()
 	g_cvToken.GetString(g_sToken, sizeof(g_sToken));
 	g_bEnablePrint = g_cvEnablePrint.BoolValue;
 	g_cvObject.GetString(g_sObject, sizeof(g_sObject));
+	g_bKick = g_cvKick.BoolValue;
 	
 	// Create hHTTPClient
 	if (hHTTPClient != null)
