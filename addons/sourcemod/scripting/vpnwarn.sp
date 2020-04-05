@@ -129,19 +129,20 @@ public Action NotifyAdmin(Handle timer, any userID)
 // --------------
 stock void VPN_Check(int client)
 {
-	char ip[32], steamID64[64];
+	char ip[32], steamID64[64], endPointURL[256];
 	
 	// Get client info
 	GetClientAuthId(client, AuthId_SteamID64, steamID64, sizeof(steamID64));
 	GetClientIP(client, ip, sizeof(ip));
 	
 	// Replace info in endpoint URL
-	ReplaceString(g_sEndPoint, sizeof(g_sEndPoint), "{STEAMID}", steamID64);
-	ReplaceString(g_sEndPoint, sizeof(g_sEndPoint), "{IP}", ip);
+	endPointURL = g_sEndPoint;
+	ReplaceString(endPointURL, sizeof(endPointURL), "{STEAMID}", steamID64);
+	ReplaceString(endPointURL, sizeof(endPointURL), "{IP}", ip);
 	
 	// Set hHTTPClient info
 	hHTTPClient.SetHeader("Authorization", g_sToken);
-	hHTTPClient.Get(g_sEndPoint, OnHTTPResponse, GetClientUserId(client));
+	hHTTPClient.Get(endPointURL, OnHTTPResponse, GetClientUserId(client));
 }
 
 public void OnHTTPResponse(HTTPResponse response, any data)
