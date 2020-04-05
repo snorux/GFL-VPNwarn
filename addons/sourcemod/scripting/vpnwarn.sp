@@ -40,6 +40,7 @@ public void OnPluginStart()
 
 	g_cvEnablePrint = 	CreateConVar("vpn_enable_print", "1", "Enable or disable printing messages");
 	
+	RegAdminCmd("sm_fvpncheck", Command_Forcecheck, ADMFLAG_ROOT, "Force check a client");
 	RegAdminCmd("sm_vpncheck", Command_VPNcheck, ADMFLAG_GENERIC, "Individually check if a client is using a VPN");
 	
 	LoadTranslations("common.phrases");
@@ -80,8 +81,12 @@ public void OnClientDisconnect(int client)
 
 public void OnClientPostAdminCheck(int client)
 {
-	if (!IsValidClient(client))
+	if (IsFakeClient(client)) {
 		return;
+	}
+	
+	// Initiate VPN check
+	VPN_Check(client);
 	
 	// Notify joined admins about current VPN users if any
 	if (g_bEnablePrint)
@@ -89,9 +94,6 @@ public void OnClientPostAdminCheck(int client)
 		if (IsValidAdmin(client, "b"))
 			CreateTimer(45.0, NotifyAdmin, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
-	
-	// Initiate VPN check
-	VPN_Check(client);
 }
 
 public Action NotifyAdmin(Handle timer, any userID)
@@ -219,6 +221,29 @@ public Action Command_VPNcheck(int client, int args)
 	return Plugin_Handled;
 }
 
+public Action Command_Forcecheck(int client, int args)
+{
+	if (args == 0)
+	{	
+		VPN_Check(client);
+		CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%N \x10is %s a VPN.", client, g_bIsBlocked[client] ? "using" : "not using");
+	}
+		
+	if (args == 1)
+	{
+		char arg1[65];
+		GetCmdArg(1, arg1, sizeof(arg1));
+		int target = FindTarget(client, arg1, false, false);
+		if (target == -1)
+		{
+			return Plugin_Handled;
+		}
+		VPN_Check(target);
+		CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%N \x10is %s a VPN.",target, g_bIsBlocked[target] ? "using" : "not using");
+	}
+	
+	return Plugin_Handled;
+}
 // --------------
 // Stocks
 // --------------
