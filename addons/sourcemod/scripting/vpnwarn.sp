@@ -119,7 +119,7 @@ public Action NotifyAdmin(Handle timer, any userID)
 		}
 	}
 	if (VPNcount >= 1)
-		CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%i have been flagged for using a VPN, check console for more info", VPNcount);
+		CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%i player(s) have been flagged for using a VPN, check console for more info", VPNcount);
 }
 
 // --------------
@@ -287,7 +287,7 @@ stock void VPNLog(const char[] message, any ...)
 	
 	static char LogPath[PLATFORM_MAX_PATH];
 	if(LogPath[0] == '\0')
-		BuildPath(Path_SM, LogPath, sizeof(LogPath), "logs/gfl_vpn_logs.txt");
+		BuildPath(Path_SM, LogPath, sizeof(LogPath), "logs/connections/GFL_VPNLogs.log");
 		
 	File logfile = OpenFile(LogPath, "a");
 	
