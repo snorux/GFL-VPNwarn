@@ -1,7 +1,7 @@
 #define PLUGIN_NAME           "VPNwarn"
 #define PLUGIN_AUTHOR         "Snowy"
 #define PLUGIN_DESCRIPTION    "Uses GFL VPN API service to determine whether an IP is a VPN"
-#define PLUGIN_VERSION        "1.1"
+#define PLUGIN_VERSION        "1.2"
 #define PLUGIN_URL            ""
 
 #include <colors_csgo>
@@ -33,10 +33,10 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	g_cvURL =			CreateConVar("vpn_api_url", "google.com", "URL for the REST API.");
-	g_cvEndPoint =		CreateConVar("vpn_endpoint_url", "something", "EndPoint for the API");
-	g_cvToken =			CreateConVar("vpn_token", "", "Token to access the API");
-	g_cvObject =		CreateConVar("vpn_object", "blocked", "The object in JSON to fetch the value");
+	g_cvURL =			CreateConVar("vpn_api_url", "google.com", "URL for the REST API.", FCVAR_PROTECTED);
+	g_cvEndPoint =		CreateConVar("vpn_endpoint_url", "something", "EndPoint for the API", FCVAR_PROTECTED);
+	g_cvToken =			CreateConVar("vpn_token", "", "Token to access the API", FCVAR_PROTECTED);
+	g_cvObject =		CreateConVar("vpn_object", "blocked", "The object in JSON to fetch the value", FCVAR_PROTECTED);
 	g_cvKick =			CreateConVar("vpn_kick", "0", "Whether or not to kick the VPN user when they join the server. 1 = kick, 0 = don't kick");
 
 	g_cvEnablePrint = 	CreateConVar("vpn_enable_print", "1", "Enable or disable printing messages");
@@ -128,7 +128,7 @@ public Action NotifyAdmin(Handle timer, any userID)
 		}
 	}
 	if (VPNcount >= 1)
-		CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%i player(s) have been flagged for using a VPN, check console for more info", VPNcount);
+		CPrintToChat(client, "\x01[\x07GFL-VPN\x01] \x04%i player(s) \x10have been flagged for using a VPN, check console for more info", VPNcount);
 }
 
 // --------------
