@@ -8,6 +8,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <ripext>
+#include <vpnwarn>
 
 #pragma semicolon 1
 
@@ -45,6 +46,12 @@ public void OnPluginStart()
 	
 	LoadTranslations("common.phrases");
 	AutoExecConfig(true, "GFL-VPN");
+}
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	CreateNative("ClientUsingVPN", Native_ClientUsingVPN);
+	return APLRes_Success;
 }
 
 public void OnConfigsExecuted()
@@ -245,6 +252,23 @@ public Action Command_Forcecheck(int client, int args)
 	
 	return Plugin_Handled;
 }
+
+// --------------
+// Natives
+// --------------
+public int Native_ClientUsingVPN(Handle plugin, int params)
+{
+	int client = GetNativeCell(1);
+
+	if (!IsValidClient(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Invalid client specified");
+		return false;
+	}
+
+	return g_bIsBlocked[client];
+}
+
 // --------------
 // Stocks
 // --------------
