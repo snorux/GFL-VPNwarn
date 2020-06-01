@@ -203,6 +203,8 @@ public void OnHTTPResponse(HTTPResponse response, any data)
 	else
 		VPNLog("Name: %N, SteamID: %s, IP: %s joined the server without a VPN", client, steamID64, ip);
 	*/
+	
+	delete result;
 }
 
 // --------------
